@@ -29,7 +29,8 @@ yarn-error.log*
 
 # local environment
 .env*
-/.openai/
+/.openai/*
+!/.openai/hosting.json
 
 # locally packaged shareables
 /exports/
