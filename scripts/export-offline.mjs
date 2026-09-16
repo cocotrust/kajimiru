@@ -2,6 +2,7 @@ import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const previewUrl = process.env.KAJIMIRU_PREVIEW_URL || 'http://localhost:3000';
+const releaseLabel = process.env.KAJIMIRU_RELEASE_LABEL || 'OFFLINE UI DEMO';
 const projectRoot = process.cwd();
 const outputDir = path.join(projectRoot, 'exports', 'KAJIMIRU-offline-preview');
 const assetsDir = path.join(outputDir, 'assets');
@@ -144,7 +145,7 @@ const offlineScript = `
 
   const note = document.createElement('div');
   note.className = 'offline-note';
-  note.textContent = 'OFFLINE UI DEMO';
+  note.textContent = ${JSON.stringify(releaseLabel)};
   document.body.appendChild(note);
 })();
 </script>`;

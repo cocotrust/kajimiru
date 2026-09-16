@@ -2,7 +2,7 @@ name: Publish KAJIMIRU demo
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/kajimiru-design-preview]
   workflow_dispatch:
 
 permissions:
@@ -42,6 +42,11 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://localhost:3000 > /dev/null || { cat /tmp/kajimiru.log; exit 1; }
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            export KAJIMIRU_RELEASE_LABEL="OFFLINE UI DEMO"
+          else
+            export KAJIMIRU_RELEASE_LABEL="DESIGN PREVIEW"
+          fi
           KAJIMIRU_PREVIEW_URL=http://localhost:3000 pnpm export:offline
           touch exports/KAJIMIRU-offline-preview/.nojekyll
 
