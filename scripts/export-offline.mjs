@@ -35,8 +35,11 @@ const offlineScript = `
 <script>
 (() => {
   const cards = [...document.querySelectorAll('.rank-card.large')];
+  const cardsContainer = document.querySelector('.ranking-cards');
   const input = document.querySelector('#hero-search');
   const filterButtons = [...document.querySelectorAll('.filter-tabs button')];
+  const menuToggle = document.querySelector('.menu-toggle');
+  const navigation = document.querySelector('#primary-navigation');
   const brandTags = {
     TRUSTDICE: ['出金が速い','仮想通貨'],
     STAKE: ['出金が速い','仮想通貨'],
@@ -47,23 +50,46 @@ const offlineScript = `
   };
   let activeFilter = 'すべて';
 
+  const emptyState = document.createElement('div');
+  emptyState.className = 'no-result';
+  emptyState.setAttribute('role', 'status');
+  emptyState.hidden = true;
+  emptyState.innerHTML = '<b>一致するデモデータがありません</b><button type="button">条件をリセット</button>';
+  cardsContainer?.appendChild(emptyState);
+
+  function showNotice(label) {
+    document.querySelector('.offline-toast')?.remove();
+    const notice = document.createElement('output');
+    notice.className = 'toast offline-toast';
+    notice.setAttribute('aria-live', 'polite');
+    notice.textContent = label + ' はデモ表示です。次のページ制作で接続できます。';
+    document.body.appendChild(notice);
+    window.setTimeout(() => notice.remove(), 3000);
+  }
+
   function applyFilters() {
     const query = (input?.value || '').trim().toLowerCase();
+    let visibleCount = 0;
     cards.forEach((card) => {
       const brand = card.querySelector('.rank-card-title small')?.textContent?.trim() || '';
       const matchesText = !query || card.textContent.toLowerCase().includes(query);
       const matchesFilter = activeFilter === 'すべて' || (brandTags[brand] || []).includes(activeFilter);
       card.classList.toggle('offline-hidden', !(matchesText && matchesFilter));
+      if (matchesText && matchesFilter) visibleCount += 1;
     });
+    emptyState.hidden = visibleCount !== 0;
   }
 
   input?.addEventListener('input', applyFilters);
   filterButtons.forEach((button, index) => {
     if (index === 0) button.classList.add('offline-active');
+    button.setAttribute('aria-pressed', String(index === 0));
     button.addEventListener('click', () => {
       activeFilter = button.textContent.trim();
       filterButtons.forEach((item) => item.classList.remove('offline-active'));
+      filterButtons.forEach((item) => item.setAttribute('aria-pressed', 'false'));
       button.classList.add('offline-active');
+      button.setAttribute('aria-pressed', 'true');
       applyFilters();
     });
   });
@@ -80,6 +106,40 @@ const offlineScript = `
   document.querySelector('.hero-search button')?.addEventListener('click', () => {
     applyFilters();
     document.querySelector('#ranking')?.scrollIntoView({behavior:'smooth'});
+  });
+  document.querySelector('.hero-search')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    applyFilters();
+    document.querySelector('#ranking')?.scrollIntoView({behavior:'smooth'});
+  });
+
+  emptyState.querySelector('button')?.addEventListener('click', () => {
+    if (input) input.value = '';
+    activeFilter = 'すべて';
+    filterButtons.forEach((button, index) => {
+      button.classList.toggle('offline-active', index === 0);
+      button.setAttribute('aria-pressed', String(index === 0));
+    });
+    applyFilters();
+    input?.focus();
+  });
+
+  function closeMenu() {
+    navigation?.classList.remove('open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+    menuToggle?.setAttribute('aria-label', 'メニューを開く');
+  }
+  menuToggle?.addEventListener('click', () => {
+    const isOpen = navigation?.classList.toggle('open') || false;
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+    menuToggle.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
+  });
+  navigation?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+
+  document.querySelectorAll('button').forEach((button) => {
+    if (button.closest('.filter-tabs, .popular-terms, .hero-search, .no-result') || button.matches('.nav-search, .menu-toggle')) return;
+    button.addEventListener('click', () => showNotice(button.textContent.trim().replace(/詳細を見る|一覧を見る|ゲーム一覧|評価ポリシー/g, '').trim() || 'この項目'));
   });
 
   const note = document.createElement('div');

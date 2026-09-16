@@ -99,12 +99,12 @@ export default function Home() {
 
       <header className="main-header">
         <a className="logo" href="#top" aria-label="カジミル トップ"><span><Dices /></span><strong>カジ<span>ミル</span><small>CASINO GUIDE</small></strong></a>
-        <nav className={menuOpen ? 'primary-nav open' : 'primary-nav'} aria-label="メインメニュー">
-          <a href="#ranking">ランキング</a><a href="#bonus">ボーナス</a><a href="#promo">最新プロモ</a>
-          <a href="#games">ゲーム</a><a href="#pedia">カジノ百科</a><a href="#directory">カジノ一覧</a>
+        <nav id="primary-navigation" className={menuOpen ? 'primary-nav open' : 'primary-nav'} aria-label="メインメニュー">
+          <a href="#ranking" onClick={() => setMenuOpen(false)}>ランキング</a><a href="#bonus" onClick={() => setMenuOpen(false)}>ボーナス</a><a href="#promo" onClick={() => setMenuOpen(false)}>最新プロモ</a>
+          <a href="#games" onClick={() => setMenuOpen(false)}>ゲーム</a><a href="#pedia" onClick={() => setMenuOpen(false)}>カジノ百科</a><a href="#directory" onClick={() => setMenuOpen(false)}>カジノ一覧</a>
         </nav>
         <button className="nav-search" aria-label="サイト内検索" onClick={() => document.querySelector<HTMLInputElement>('#hero-search')?.focus()}><Search /></button>
-        <button className="menu-toggle" aria-label="メニュー" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
+        <button className="menu-toggle" aria-label={menuOpen ? 'メニューを閉じる' : 'メニューを開く'} aria-controls="primary-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
       </header>
 
       <div className="page-wrap" id="top">
@@ -115,11 +115,11 @@ export default function Home() {
             <p className="hero-kicker">はじめてでも、迷わない。</p>
             <h1>日本語カジノを<br /><em>まるごと比較！</em></h1>
             <p className="hero-desc">ボーナス・出金・ゲーム・日本語サポート。<br />気になる条件を一画面でサクッと比較できます。</p>
-            <div className="hero-search" role="search">
+            <form className="hero-search" role="search" onSubmit={(event) => { event.preventDefault(); document.querySelector('#ranking')?.scrollIntoView({ behavior: 'smooth' }); }}>
               <Search /><Input id="hero-search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="カジノ名や特徴で検索" />
-              <Button onClick={() => document.querySelector('#ranking')?.scrollIntoView({ behavior: 'smooth' })}>検索 <ArrowRight /></Button>
-            </div>
-            <div className="popular-terms"><b>人気ワード</b><button onClick={() => setQuery('入金不要')}>入金不要</button><button onClick={() => setQuery('仮想通貨')}>仮想通貨</button><button onClick={() => setQuery('日本語')}>日本語対応</button></div>
+              <label className="sr-only" htmlFor="hero-search">カジノ名や特徴で検索</label><Button type="submit">検索 <ArrowRight /></Button>
+            </form>
+            <div className="popular-terms"><b>人気ワード</b><button type="button" onClick={() => setQuery('入金不要')}>入金不要</button><button type="button" onClick={() => setQuery('仮想通貨')}>仮想通貨</button><button type="button" onClick={() => setQuery('日本語')}>日本語対応</button></div>
           </div>
           <div className="hero-visual">
             <div className="speech-bubble"><b>今月の注目は<br />出金スピード！</b><span>編集部 ミル</span></div>
@@ -143,7 +143,7 @@ export default function Home() {
             <section className="section-block ranking-block" id="ranking">
               <div className="section-title"><span className="title-icon"><Trophy /></span><div><small>POPULAR CASINO RANKING</small><h2>おすすめランキング TOP5</h2></div><p>総合評価・出金速度・ボーナス条件を横並びで比較</p></div>
               <div className="filter-tabs">
-                {filters.map((item) => <Button key={item} variant={filter === item ? 'default' : 'outline'} onClick={() => setFilter(item)}>{item}</Button>)}
+                {filters.map((item) => <Button key={item} type="button" aria-pressed={filter === item} variant={filter === item ? 'default' : 'outline'} onClick={() => setFilter(item)}>{item}</Button>)}
               </div>
               <div className="ranking-cards">
                 {results.map((casino) => (
@@ -175,7 +175,7 @@ export default function Home() {
                     </div>
                   </article>
                 ))}
-                {results.length === 0 && <div className="no-result"><Search /><b>一致するデモデータがありません</b><button onClick={() => { setQuery(''); setFilter('すべて'); }}>条件をリセット</button></div>}
+                {results.length === 0 && <div className="no-result" role="status"><Search /><b>一致するデモデータがありません</b><button type="button" onClick={() => { setQuery(''); setFilter('すべて'); }}>条件をリセット</button></div>}
               </div>
             </section>
 
